@@ -59,6 +59,7 @@ export function CatalogTable({ data }: Props) {
 
   const virtualRows = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
+  const totalWidth = table.getTotalSize();
 
   const columnSizeVars = useMemo(() => {
     const headers = table.getFlatHeaders();
@@ -76,7 +77,7 @@ export function CatalogTable({ data }: Props) {
       className="bg-white rounded-xl border border-slate-200 overflow-auto"
       style={{ height: 'calc(100vh - 320px)', minHeight: '400px' }}
     >
-      <table className="w-full border-collapse" style={columnSizeVars}>
+      <table className="border-collapse table-fixed" style={{ ...columnSizeVars, width: totalWidth }}>
         <thead className="sticky top-0 z-10">
           {table.getHeaderGroups().map((hg) => (
             <tr key={hg.id}>
@@ -84,7 +85,7 @@ export function CatalogTable({ data }: Props) {
                 <th
                   key={header.id}
                   className="bg-slate-800 text-white text-left text-xs font-medium px-3 py-2.5 cursor-pointer select-none whitespace-nowrap hover:bg-slate-700 transition-colors"
-                  style={{ width: `var(--header-${header.id}-size)` }}
+                  style={{ width: header.getSize() }}
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   <span className="flex items-center gap-1">
@@ -102,12 +103,17 @@ export function CatalogTable({ data }: Props) {
             </tr>
           ))}
         </thead>
-        <tbody style={{ height: `${totalSize}px`, position: 'relative' }}>
+        <tbody>
           {virtualRows.length === 0 && (
             <tr>
               <td colSpan={columns.length} className="text-center py-12 text-slate-400 text-sm">
                 Aucun résultat pour ces filtres
               </td>
+            </tr>
+          )}
+          {virtualRows.length > 0 && (
+            <tr style={{ height: virtualRows[0].start }}>
+              <td colSpan={columns.length} />
             </tr>
           )}
           {virtualRows.map((virtualRow) => {
@@ -116,20 +122,13 @@ export function CatalogTable({ data }: Props) {
               <tr
                 key={row.id}
                 className="hover:bg-indigo-50/50 transition-colors"
-                style={{
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  display: 'table-row',
-                }}
+                style={{ height: virtualRow.size }}
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-3 py-1.5 text-xs border-b border-slate-100 whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px]"
+                    className="px-3 py-1.5 text-xs border-b border-slate-100 whitespace-nowrap overflow-hidden text-ellipsis"
+                    style={{ width: cell.column.getSize(), maxWidth: cell.column.getSize() }}
                     title={String(cell.getValue() ?? '')}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -138,6 +137,11 @@ export function CatalogTable({ data }: Props) {
               </tr>
             );
           })}
+          {virtualRows.length > 0 && (
+            <tr style={{ height: totalSize - (virtualRows[virtualRows.length - 1].end) }}>
+              <td colSpan={columns.length} />
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
