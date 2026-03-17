@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useCatalogStore } from '../store/useCatalogStore';
 import { useFilterStore } from '../store/useFilterStore';
-import type { CatalogRow, CatalogMeta } from '../types/catalog';
+import type { CatalogRow, CatalogMeta, Filters } from '../types/catalog';
 
 function matchesFilters(
   row: CatalogRow,
-  filters: Record<string, string>,
+  filters: Filters,
   excludeKey?: string,
 ) {
   if (excludeKey !== 'ecole' && filters.ecole && row.ecole !== filters.ecole) return false;
