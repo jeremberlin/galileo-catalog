@@ -21,8 +21,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const [dedupRes, metaRes] = await Promise.all([
-        fetch('/data/catalog-deduped.json'),
-        fetch('/data/meta.json'),
+        fetch(`${import.meta.env.BASE_URL}data/catalog-deduped.json`),
+        fetch(`${import.meta.env.BASE_URL}data/meta.json`),
       ]);
       const dedupedRows: CatalogRow[] = await dedupRes.json();
       const meta: CatalogMeta = await metaRes.json();
